@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  postgres:
+    env_file:
+      - db.env
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    ports:
+      - "1235:1235"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  pgadmin:
+    env_file:
+      - pgadmin.env
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "82:80"
+
+volumes:
+  dbdata: # create the volume for persisting data.

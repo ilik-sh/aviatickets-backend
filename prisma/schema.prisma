@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserPermissions {
+  All                @map("permissions.all")
+  GetAllBookings     @map("permissions.bookings.get-all-bookings")
+  CreateBooking      @map("permissions.bookings.create-booking")
+  UpdateBooking      @map("permissions.bookings.update-booking")
+  GetAllUsers        @map("permissions.users.get-all-users")
+  GetAllUserBookings @map("permissions.users.get-all-user-bookings")
+  GetUser            @map("permissions.users.get-user")
+  UpdateUser         @map("permissions.users.update-user")
+  SignOut            @map("permissions.auth.sign-out")
+  ChangePassword     @map("permissions.auth.change-password")
+}
+
+enum RoleTypes {
+  Admin @map("admin")
+  User  @map("user")
+  Sales @map("sales")
+}
+
+enum FlightStatuses {
+  Planned   @map("planned")
+  Completed @map("completed")
+}
+
+enum BookingStatuses {
+  Payed     @map("payed")
+  Booked    @map("booked")
+  Cancelled @map("cancelled")
+}
+
+enum Cities {
+  Bridgetown
+  Minsk
+  Brussels
+  Sofia
+  Brazzaville
+  Prague
+  Helsinki
+  Paris
+  Tbilisi
+  Berlin
+  Bissau
+  Valletta
+  Monaco
+  Warsaw
+  Lisbon
+  Bucharest
+}
+
+model Role {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  type        RoleTypes
+  permissions UserPermissions[]
+
+  users User[]
+
+  @@unique([id, type])
+  @@map("roles")
+}
+
+model Device {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  userId          String  @default(uuid()) @map("user_id") @db.Uuid
+  deviceId        String  @map("device_id") @db.Uuid
+  hashedResetCode String?
+  user            User?   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, deviceId])
+  @@map("devices")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  email     String    @unique
+  roleType  RoleTypes @default(User) @map("role_type")
+  password  String
+
+  devices  Device[]
+  bookings Booking[]
+  role     Role      @relation(fields: [roleId], references: [id])
+  roleId   String    @map("role_id") @db.Uuid
+
+  @@index([email, password])
+  @@map("users")
+}
+
+model Booking {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  status BookingStatuses @default(Booked)
+  price  Int
+
+  originCity      Cities
+  destinationCity Cities
+
+  toDestinationRoute Flight[] @relation("booking_to_flight_destination")
+  toOriginRoute      Flight[] @relation("booking_to_flight_origin")
+
+  passengers Passenger[] @relation("booking_to_passenger")
+  userId     String      @map("user_id") @db.Uuid
+  user       User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("bookings")
+}
+
+model Passenger {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  firstName  String @map("first_name")
+  lastName   String @map("last_name")
+  passportId String @unique @map("passport_id")
+
+  bookings Booking[] @relation("booking_to_passenger")
+
+  @@map("passengers")
+}
+
+model Flight {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  originCity          Cities         @map("origin_city")
+  destinationCity     Cities         @map("destination_city")
+  departureTime       DateTime       @map("departure_time")
+  arrivalTime         DateTime       @map("arrival_time")
+  status              FlightStatuses
+  price               Int
+  seatAmount          Int            @map("seat_amount")
+  availableSeatAmount Int            @map("available_seat_amount")
+
+  toOriginBookings      Booking[] @relation("booking_to_flight_destination")
+  toDestinationBookings Booking[] @relation("booking_to_flight_origin")
+
+  @@map("flights")
+}

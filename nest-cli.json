@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/gateway-api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "plugins": ["@nestjs/swagger"],
+    "tsConfigPath": "apps/gateway-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/gateway-api",
+  "projects": {
+    "gateway-api": {
+      "type": "application",
+      "root": "apps/gateway-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway-api/tsconfig.app.json"
+      }
+    },
+    "gateway-chat": {
+      "type": "application",
+      "root": "apps/gateway-chat",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway-chat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway-chat/tsconfig.app.json"
+      }
+    }
+  }
+}

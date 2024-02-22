@@ -1,0 +1,16 @@
+export enum ErrorMessage {
+  UserCreationFailed = 'User creation failed',
+  RecordNotFound = 'Record not found',
+  RecordCreationFailed = 'Record creation failed',
+  RecordUpdationFailed = 'Record updation failed',
+  RecordDeletionFailed = 'Record deletion failed',
+  UserNotExists = 'Not exist user',
+  UserAlreadyExists = 'User already exists',
+  RecordNotExists = 'Not exist record',
+  BadResetToken = 'Bad reset token',
+  BadVerification = 'Verification failed',
+  NotAuthorizedDevice = 'Bad device',
+  BadPassword = 'Passwords don\'t mmatch',
+  FailedToSendMessage = 'Failed to send message',
+  NotEnoughAvailableSeats = 'Not enough available seats',
+}
